@@ -34,6 +34,7 @@ class Blockchain:
         """
         Constructor for the Blockchain class
         """
+        self.unconfirmed_transactions = [] # data yet to get into the blockchain
         self.chain = []
         self.create_genesis_block()
 
@@ -93,3 +94,22 @@ class Blockchain:
         Check if block_hash is valid hash of block and satisifes the difficulty criteria.
         """
         return block_hash.startswith('0' * Blockchain.difficulty) and block_hash == block.compute_hash()
+
+    def add_new_transaction(self, transaction):
+        self.uncomfirmed_transactions.append(transaction)
+
+    def mine(self):
+        """
+        An interface to add pending transactions to the blockchain by adding them to the block and computing proof of work
+        """
+        if not self.uncomfirmed_transactions:
+            return False
+
+        last_block = self.last_block
+
+        new_block = Block(index=last_block + 1, transactions=self.uncomfirmed_transactions, timestamp=time.time(),
+                          previous_hash=last_block.hash)
+        proof = self.proof_of_work(new_block)
+        self.add_block(new_block, proof)
+        self.unconfirmed_transactions = []
+        return new_block.index
